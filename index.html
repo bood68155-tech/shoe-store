@@ -3,35 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر الأحذية</title>
+    <title>متجر الأحذية العصري</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .shoe-card:hover { transform: translateY(-10px); transition: 0.3s; }
+    </style>
 </head>
-<body class="bg-gray-100 p-5">
+<body class="bg-gray-50">
 
-    <h1 class="text-3xl font-bold text-center mb-8">أحدث التشكيلات</h1>
+    <!-- Header -->
+    <nav class="bg-white shadow-sm p-4 text-center">
+        <h1 class="text-2xl font-bold text-gray-800">مـتـجـر الـفـخـامـة</h1>
+    </nav>
 
-    <!-- شبكة المنتجات -->
-    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- سيتم إضافة المنتجات هنا بواسطة JavaScript -->
+    <!-- Content -->
+    <div class="container mx-auto p-6">
+        <h2 class="text-xl font-semibold mb-6">التشكيلة الجديدة</h2>
+        
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- المنتجات -->
+            <div class="shoe-card bg-white rounded-2xl shadow-lg p-4">
+                <div class="h-56 bg-gray-200 rounded-xl mb-4 flex items-center justify-center text-gray-500">صورة الحذاء</div>
+                <h3 class="text-lg font-bold">حذاء رياضي برو</h3>
+                <p class="text-blue-600 font-bold mt-1">50$</p>
+                <button class="bg-black text-white w-full py-3 mt-4 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
+            </div>
+            
+            <div class="shoe-card bg-white rounded-2xl shadow-lg p-4">
+                <div class="h-56 bg-gray-200 rounded-xl mb-4 flex items-center justify-center text-gray-500">صورة الحذاء</div>
+                <h3 class="text-lg font-bold">حذاء كلاسيكي</h3>
+                <p class="text-blue-600 font-bold mt-1">70$</p>
+                <button class="bg-black text-white w-full py-3 mt-4 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
+            </div>
+        </div>
     </div>
-
-    <script>
-        const products = [
-            { id: 1, name: "حذاء رياضي برو", price: "50$", img: "shoe1.jpg" },
-            { id: 2, name: "حذاء كلاسيكي", price: "70$", img: "shoe2.jpg" }
-        ];
-
-        const grid = document.getElementById('product-grid');
-        products.forEach(p => {
-            grid.innerHTML += `
-                <div class="bg-white p-4 rounded-lg shadow-md">
-                    <img src="${p.img}" class="w-full h-48 object-cover mb-4">
-                    <h2 class="text-xl font-semibold">${p.name}</h2>
-                    <p class="text-gray-600">${p.price}</p>
-                    <button class="bg-blue-600 text-white w-full py-2 mt-3 rounded hover:bg-blue-700">شراء الآن</button>
-                </div>
-            `;
-        });
-    </script>
 </body>
 </html>
