@@ -3,19 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>متجر الفخامة للأحذية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>متجر الفخامة | Shoe Store</title>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
 
-    <nav class="bg-white p-6 shadow-md text-center">
-        <h1 class="text-3xl font-bold text-gray-800">مـتـجـر الـفـخـامـة</h1>
-        <p class="text-gray-500 mt-2">أفضل الأحذية الرياضية والكلاسيكية</p>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg p-4 flex justify-between items-center px-10 sticky top-0 z-50">
+        <h1 class="text-2xl font-bold text-black"><i class="fas fa-shoe-prints text-blue-600"></i> مـتـجـر الـفـخـامـة</h1>
+        <div class="relative cursor-pointer" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart text-2xl"></i>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">0</span>
+        </div>
     </nav>
 
-    <div class="container mx-auto p-8">
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- سيتم حقن المنتجات هنا -->
+    <!-- Main Content -->
+    <div class="container mx-auto p-10">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- المنتجات ستظهر هنا -->
         </div>
+    </div>
+
+    <!-- Simple Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 -right-80 w-80 h-full bg-white shadow-2xl p-6 transition-all duration-300 z-50">
+        <h2 class="text-xl font-bold mb-4">سلة التسوق</h2>
+        <div id="cart-items" class="space-y-4"></div>
+        <button class="w-full bg-green-600 text-white py-3 mt-6 rounded-lg font-bold">إتمام الطلب</button>
     </div>
 
     <script>
@@ -27,22 +40,35 @@
         function renderProducts() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = products.map(p => `
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition hover:scale-105">
-                    <img src="${p.img}" class="w-full h-64 object-cover">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <img src="${p.img}" class="w-full h-72 object-cover">
                     <div class="p-6">
                         <h3 class="text-xl font-bold">${p.name}</h3>
-                        <p class="text-blue-600 text-lg font-bold my-2">${p.price}$</p>
-                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-black text-white w-full py-3 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
+                        <p class="text-blue-600 font-bold text-lg my-2">${p.price}$</p>
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-black text-white w-full py-3 rounded-xl hover:bg-gray-800 transition">
+                            <i class="fas fa-cart-plus ml-2"></i> إضافة للسلة
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
+        let cart = [];
         function addToCart(name, price) {
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
             cart.push({ name, price });
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert(name + " أُضيف للسلة بنجاح!");
+            document.getElementById('cart-count').innerText = cart.length;
+            updateCartSidebar();
+            alert("تمت الإضافة للسلة!");
+        }
+
+        function updateCartSidebar() {
+            const list = document.getElementById('cart-items');
+            list.innerHTML = cart.map(item => `<div class="flex justify-between border-b pb-2"><span>${item.name}</span><span>${item.price}$</span></div>`).join('');
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.style.right = sidebar.style.right === '0px' ? '-80%' : '0px';
         }
 
         renderProducts();
