@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر الأحذية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-5">
+
+    <h1 class="text-3xl font-bold text-center mb-8">أحدث التشكيلات</h1>
+
+    <!-- شبكة المنتجات -->
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- سيتم إضافة المنتجات هنا بواسطة JavaScript -->
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "حذاء رياضي برو", price: "50$", img: "shoe1.jpg" },
+            { id: 2, name: "حذاء كلاسيكي", price: "70$", img: "shoe2.jpg" }
+        ];
+
+        const grid = document.getElementById('product-grid');
+        products.forEach(p => {
+            grid.innerHTML += `
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="${p.img}" class="w-full h-48 object-cover mb-4">
+                    <h2 class="text-xl font-semibold">${p.name}</h2>
+                    <p class="text-gray-600">${p.price}</p>
+                    <button class="bg-blue-600 text-white w-full py-2 mt-3 rounded hover:bg-blue-700">شراء الآن</button>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
