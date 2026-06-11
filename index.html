@@ -2,40 +2,50 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر الأحذية العصري</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .shoe-card:hover { transform: translateY(-10px); transition: 0.3s; }
-    </style>
+    <title>متجر الفخامة للأحذية</title>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
 
-    <!-- Header -->
-    <nav class="bg-white shadow-sm p-4 text-center">
-        <h1 class="text-2xl font-bold text-gray-800">مـتـجـر الـفـخـامـة</h1>
+    <nav class="bg-white p-6 shadow-md text-center">
+        <h1 class="text-3xl font-bold text-gray-800">مـتـجـر الـفـخـامـة</h1>
+        <p class="text-gray-500 mt-2">أفضل الأحذية الرياضية والكلاسيكية</p>
     </nav>
 
-    <!-- Content -->
-    <div class="container mx-auto p-6">
-        <h2 class="text-xl font-semibold mb-6">التشكيلة الجديدة</h2>
-        
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- المنتجات -->
-            <div class="shoe-card bg-white rounded-2xl shadow-lg p-4">
-                <div class="h-56 bg-gray-200 rounded-xl mb-4 flex items-center justify-center text-gray-500">صورة الحذاء</div>
-                <h3 class="text-lg font-bold">حذاء رياضي برو</h3>
-                <p class="text-blue-600 font-bold mt-1">50$</p>
-                <button class="bg-black text-white w-full py-3 mt-4 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
-            </div>
-            
-            <div class="shoe-card bg-white rounded-2xl shadow-lg p-4">
-                <div class="h-56 bg-gray-200 rounded-xl mb-4 flex items-center justify-center text-gray-500">صورة الحذاء</div>
-                <h3 class="text-lg font-bold">حذاء كلاسيكي</h3>
-                <p class="text-blue-600 font-bold mt-1">70$</p>
-                <button class="bg-black text-white w-full py-3 mt-4 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
-            </div>
+    <div class="container mx-auto p-8">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- سيتم حقن المنتجات هنا -->
         </div>
     </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "حذاء كلاسيكي", price: 70, img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500" },
+            { id: 2, name: "حذاء رياضي برو", price: 50, img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" }
+        ];
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition hover:scale-105">
+                    <img src="${p.img}" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold">${p.name}</h3>
+                        <p class="text-blue-600 text-lg font-bold my-2">${p.price}$</p>
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-black text-white w-full py-3 rounded-xl hover:bg-gray-800">إضافة للسلة</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(name, price) {
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            cart.push({ name, price });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(name + " أُضيف للسلة بنجاح!");
+        }
+
+        renderProducts();
+    </script>
 </body>
 </html>
