@@ -1,80 +1,47 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>متجر الفخامة | Luxe Steps</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-</head>
-<body class="bg-gray-50">
-
-    <!-- القائمة العلوية -->
-    <nav class="bg-white shadow p-4 flex justify-between px-10 items-center">
-        <h1 class="text-2xl font-bold text-black">متجر الفخامة</h1>
-        <div>
-            <input type="email" id="email" placeholder="البريد" class="border p-1 rounded">
-            <input type="password" id="pass" placeholder="كلمة المرور" class="border p-1 rounded">
-            <button onclick="login()" class="bg-black text-white px-4 py-2 rounded">دخول المدير</button>
-        </div>
-    </nav>
-
-    <!-- لوحة تحكم المدير (مخفية) -->
-    <div id="adminPanel" class="hidden bg-blue-50 p-6 m-10 rounded-xl border-2 border-blue-500">
-        <h2 class="font-bold text-xl mb-4">إضافة منتج جديد</h2>
-        <input type="text" id="pName" placeholder="اسم المنتج" class="p-2 border rounded ml-2">
-        <input type="number" id="pPrice" placeholder="السعر" class="p-2 border rounded ml-2">
-        <input type="text" id="pImg" placeholder="رابط الصورة" class="p-2 border rounded ml-2">
-        <button onclick="addProduct()" class="bg-blue-600 text-white px-6 py-2 rounded">إضافة للمتجر</button>
+<!-- القائمة العلوية مع نظام تسجيل الدخول -->
+<nav class="bg-white shadow p-4 flex justify-between px-10 items-center">
+    <h1 class="text-2xl font-bold">متجر الفخامة</h1>
+    <div id="auth-box">
+        <input type="email" id="email" placeholder="البريد" class="border p-1 rounded text-sm">
+        <input type="password" id="pass" placeholder="كلمة المرور" class="border p-1 rounded text-sm">
+        <button onclick="login()" class="bg-black text-white px-4 py-2 rounded text-sm">دخول</button>
     </div>
+</nav>
 
-    <!-- واجهة المنتجات -->
-    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 p-10"></div>
+<!-- لوحة التحكم (لن تظهر إلا للمدير) -->
+<div id="adminPanel" class="hidden bg-gray-100 p-6 m-10 rounded-xl border-2 border-dashed border-black">
+    <h2 class="font-bold text-lg mb-4">لوحة تحكم المدير:</h2>
+    <input type="text" id="pName" placeholder="اسم الحذاء" class="p-2 border rounded">
+    <input type="number" id="pPrice" placeholder="السعر" class="p-2 border rounded">
+    <input type="text" id="pImg" placeholder="رابط الصورة" class="p-2 border rounded">
+    <button onclick="addProduct()" class="bg-green-600 text-white px-6 py-2 rounded">إضافة منتج</button>
+    <p class="text-xs mt-2">* أي تعديل هنا سيظهر فوراً للزوار.</p>
+</div>
 
-    <script>
-        const firebaseConfig = { /* ضع بيانات الـ Config هنا */ };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+<script>
+    // عند تسجيل الدخول
+    function login() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => alert("مرحباً بك يا مدير"))
+            .catch(err => alert("خطأ: " + err.message));
+    }
 
-        // تسجيل الدخول
-        function login() {
-            auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('pass').value)
-                .catch(err => alert("خطأ: " + err.message));
+    // مراقبة الصلاحيات (إظهار اللوحة فقط للمدير)
+    firebase.auth().onAuthStateChanged(user => {
+        if (user && user.email === "bood68155@gmail.com") {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('auth-box').innerHTML = "<span>أهلاً مدير المتجر</span>";
         }
+    });
 
-        // إظهار لوحة المدير إذا كان المستخدم هو أنت
-        auth.onAuthStateChanged(user => {
-            if (user && user.email === "bood68155@gmail.com") {
-                document.getElementById('adminPanel').classList.remove('hidden');
-            }
-        });
-
-        // عرض المنتجات
-        db.ref('products/').on('value', snap => {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-            snap.forEach(child => {
-                const p = child.val();
-                grid.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
-                        <img src="${p.img}" class="w-full h-48 object-cover rounded-xl mb-4">
-                        <h2 class="font-bold text-lg">${p.name}</h2>
-                        <p class="text-green-600 font-bold">${p.price}$</p>
-                        <button onclick="alert('تمت الإضافة للسلة!')" class="w-full bg-black text-white py-2 rounded-lg mt-3">إضافة للسلة</button>
-                    </div>
-                `;
-            });
-        });
-
-        function addProduct() {
-            db.ref('products/').push({
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                img: document.getElementById('pImg').value
-            });
-        }
-    </script>
-</body>
-</html>
+    // إضافة منتج
+    function addProduct() {
+        firebase.database().ref('products/').push({
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            img: document.getElementById('pImg').value
+        }).then(() => alert("تمت إضافة المنتج!"));
+    }
+</script>
