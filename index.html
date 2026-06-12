@@ -2,76 +2,66 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <title>متجر الفخامة | الإدارة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <title>متجر الفخامة | Shoe Store</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100 p-8">
 
     <!-- Navbar -->
-    <nav class="bg-white shadow-lg p-4 flex justify-between items-center px-10 sticky top-0 z-50">
-        <h1 class="text-2xl font-bold text-black"><i class="fas fa-shoe-prints text-blue-600"></i> مـتـجـر الـفـخـامـة</h1>
-        <div class="relative cursor-pointer" onclick="toggleCart()">
-            <i class="fas fa-shopping-cart text-2xl"></i>
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">0</span>
-        </div>
+    <nav class="bg-white p-4 shadow-md flex justify-between items-center px-10 mb-8 rounded-lg">
+        <h1 class="text-2xl font-bold">متجر الفخامة</h1>
+        <button onclick="toggleModal()" class="bg-black text-white px-4 py-2 rounded">تسجيل دخول</button>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container mx-auto p-10">
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <!-- المنتجات ستظهر هنا -->
-        </div>
+    <!-- لوحة التحكم السريعة (إضافة منتج) -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8 max-w-lg mx-auto border-2 border-green-500">
+        <h3 class="font-bold mb-4">إضافة منتج جديد:</h3>
+        <input type="text" id="pName" placeholder="اسم الحذاء" class="w-full p-2 border mb-2 rounded">
+        <input type="number" id="pPrice" placeholder="السعر" class="w-full p-2 border mb-4 rounded">
+        <button onclick="addProduct()" class="w-full bg-green-600 text-white py-2 rounded font-bold">إضافة للمتجر</button>
     </div>
 
-    <!-- Simple Cart Sidebar -->
-    <div id="cart-sidebar" class="fixed top-0 -right-80 w-80 h-full bg-white shadow-2xl p-6 transition-all duration-300 z-50">
-        <h2 class="text-xl font-bold mb-4">سلة التسوق</h2>
-        <div id="cart-items" class="space-y-4"></div>
-        <button class="w-full bg-green-600 text-white py-3 mt-6 rounded-lg font-bold">إتمام الطلب</button>
-    </div>
+    <!-- عرض المنتجات -->
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
 
     <script>
-        const products = [
-            { id: 1, name: "حذاء كلاسيكي", price: 70, img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500" },
-            { id: 2, name: "حذاء رياضي برو", price: 50, img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" }
-        ];
+        // 1. ضع بيانات الـ firebaseConfig الخاصة بك هنا
+        const firebaseConfig = { 
+            apiKey: "YOUR_API_KEY", 
+            databaseURL: "https://shoe-store-bood-default-rtdb.firebaseio.com",
+            projectId: "shoe-store-bood" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function renderProducts() {
+        // 2. دالة إضافة منتج لقاعدة البيانات
+        function addProduct() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            db.ref('products/').push({ name, price })
+              .then(() => alert("تمت إضافة المنتج!"));
+        }
+
+        // 3. دالة جلب وعرض المنتجات تلقائياً
+        db.ref('products/').on('value', (snapshot) => {
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = products.map(p => `
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <img src="${p.img}" class="w-full h-72 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold">${p.name}</h3>
-                        <p class="text-blue-600 font-bold text-lg my-2">${p.price}$</p>
-                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-black text-white w-full py-3 rounded-xl hover:bg-gray-800 transition">
-                            <i class="fas fa-cart-plus ml-2"></i> إضافة للسلة
-                        </button>
+            grid.innerHTML = ''; // تنظيف الشاشة
+            snapshot.forEach((child) => {
+                const p = child.val();
+                grid.innerHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <h2 class="text-xl font-bold">${p.name}</h2>
+                        <p class="text-blue-500">${p.price}$</p>
+                        <button class="bg-black text-white w-full py-2 mt-4">إضافة للسلة</button>
                     </div>
-                </div>
-            `).join('');
-        }
+                `;
+            });
+        });
 
-        let cart = [];
-        function addToCart(name, price) {
-            cart.push({ name, price });
-            document.getElementById('cart-count').innerText = cart.length;
-            updateCartSidebar();
-            alert("تمت الإضافة للسلة!");
-        }
-
-        function updateCartSidebar() {
-            const list = document.getElementById('cart-items');
-            list.innerHTML = cart.map(item => `<div class="flex justify-between border-b pb-2"><span>${item.name}</span><span>${item.price}$</span></div>`).join('');
-        }
-
-        function toggleCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            sidebar.style.right = sidebar.style.right === '0px' ? '-80%' : '0px';
-        }
-
-        renderProducts();
+        function toggleModal() { /* كود المودال */ }
     </script>
 </body>
 </html>
