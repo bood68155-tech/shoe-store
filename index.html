@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>متجر الفخامة | الإدارة</title>
+    <title>متجر الفخامة - لوحة المدير</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -11,57 +11,74 @@
 <body class="bg-gray-100 p-8">
 
     <!-- Navbar -->
-    <nav class="bg-white p-4 shadow-md flex justify-between items-center px-10 mb-8 rounded-lg">
+    <nav class="bg-white p-4 shadow-md flex justify-between items-center px-10 rounded-lg">
         <h1 class="text-2xl font-bold">متجر الفخامة</h1>
-        <button onclick="toggleModal()" class="bg-black text-white px-4 py-2 rounded">تسجيل دخول</button>
+        <div id="authSection">
+            <input type="email" id="email" placeholder="البريد" class="border p-1">
+            <input type="password" id="pass" placeholder="كلمة المرور" class="border p-1">
+            <button onclick="login()" class="bg-black text-white px-4 py-2 rounded">دخول المدير</button>
+        </div>
     </nav>
 
-    <!-- لوحة التحكم السريعة (إضافة منتج) -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8 max-w-lg mx-auto border-2 border-green-500">
-        <h3 class="font-bold mb-4">إضافة منتج جديد:</h3>
+    <!-- لوحة التحكم (مخفية افتراضياً) -->
+    <div id="adminPanel" class="bg-white p-6 mt-8 rounded-lg shadow-md max-w-lg mx-auto border-2 border-green-500 hidden">
+        <h3 class="font-bold mb-4">إضافة منتج جديد (صلاحية المدير فقط):</h3>
         <input type="text" id="pName" placeholder="اسم الحذاء" class="w-full p-2 border mb-2 rounded">
+        <input type="text" id="pImage" placeholder="رابط صورة الحذاء" class="w-full p-2 border mb-2 rounded">
         <input type="number" id="pPrice" placeholder="السعر" class="w-full p-2 border mb-4 rounded">
         <button onclick="addProduct()" class="w-full bg-green-600 text-white py-2 rounded font-bold">إضافة للمتجر</button>
     </div>
 
     <!-- عرض المنتجات -->
-    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10"></div>
 
     <script>
-        // 1. ضع بيانات الـ firebaseConfig الخاصة بك هنا
-        const firebaseConfig = { 
-            apiKey: "YOUR_API_KEY", 
-            databaseURL: "https://shoe-store-bood-default-rtdb.firebaseio.com",
-            projectId: "shoe-store-bood" 
-        };
+        const firebaseConfig = { /* ضع بياناتك هنا */ };
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.database();
 
-        // 2. دالة إضافة منتج لقاعدة البيانات
+        // دالة تسجيل الدخول
+        function login() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => alert("مرحباً بك يا مدير!"))
+                .catch(err => alert("خطأ في البيانات: " + err.message));
+        }
+
+        // مراقبة حالة الدخول لإظهار اللوحة
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('authSection').innerHTML = "أهلاً بك يا عبود (مدير المتجر)";
+            }
+        });
+
+        // إضافة منتج
         function addProduct() {
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
-            db.ref('products/').push({ name, price })
-              .then(() => alert("تمت إضافة المنتج!"));
+            const img = document.getElementById('pImage').value;
+            db.ref('products/').push({ name, price, img });
+            alert("تمت الإضافة!");
         }
 
-        // 3. دالة جلب وعرض المنتجات تلقائياً
-        db.ref('products/').on('value', (snapshot) => {
+        // عرض المنتجات
+        db.ref('products/').on('value', snap => {
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = ''; // تنظيف الشاشة
-            snapshot.forEach((child) => {
+            grid.innerHTML = '';
+            snap.forEach(child => {
                 const p = child.val();
                 grid.innerHTML += `
                     <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <img src="${p.img}" class="h-32 mx-auto mb-2">
                         <h2 class="text-xl font-bold">${p.name}</h2>
                         <p class="text-blue-500">${p.price}$</p>
-                        <button class="bg-black text-white w-full py-2 mt-4">إضافة للسلة</button>
                     </div>
                 `;
             });
         });
-
-        function toggleModal() { /* كود المودال */ }
     </script>
 </body>
 </html>
